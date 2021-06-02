@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="jane">
+  <!-- Initialize gripper_center properties -->
+  <xacro:arg name="gripper_center" default="false" />
+  <xacro:property name="gripper_center" value="$(arg gripper_center)"/>
+  <xacro:arg name="gripper_center_xyz" default="0.0 0.0 0.10" />
+  <xacro:property name="gripper_center_xyz" value="$(arg gripper_center_xyz)"/>
+
+  <xacro:include filename="$(find franka_description)/robots/gzplugin_grasp_fix.xacro"/>
+  <xacro:include filename="$(find franka_description)/robots/panda.transmission.xacro"/>
+
+
+  <joint name="arm_mount_joint" type="fixed">
+    <parent link="mid_mount" />
+    <child link="franka_mount_link" />
+    <origin xyz="$(optenv RIDGEBACK_FRANKA_XYZ 0.21 0.0 0.0)" rpy="$(optenv RIDGEBACK_FRANKA_RPY 0 0 0)"/>
+  </joint>
+
+  <link name="franka_mount_link" />
+  
+  <xacro:include filename="$(find franka_description)/robots/panda_arm.xacro"/>
+  <xacro:include filename="$(find franka_description)/robots/hand.xacro"/>
+  <xacro:panda_arm connected_to="franka_mount_link"/>
+  <xacro:hand ns="panda" rpy="0 0 ${-pi/4}" connected_to="panda_link8" safety_distance="0.03" gripper_center="${gripper_center}" gripper_center_xyz="${gripper_center_xyz}"/>
+
+  <xacro:include filename="$(find franka_description)/robots/panda.gazebo.xacro"/>
+  <xacro:include filename="$(find franka_description)/robots/panda.control.xacro"/>
+
+  <xacro:panda_gazebo robot_name="panda"/>
+  <xacro:panda_control arm_id="panda" load_hand="true" />
+
+</robot>
